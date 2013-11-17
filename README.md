@@ -8,10 +8,6 @@ Code Editor provides line numbers and syntax highlighting when editing XSLT file
 
 After downloading and extracting the folder, rename the folder to "code_editor" and  install in the usual way.
 
-##Usage
-
-Your gateway is the new navigation heading ‘Workspace’.
-
 ##Browser Compatibility.
 
 Code Editor will not work on Internet Explorer version 9 or lower.
