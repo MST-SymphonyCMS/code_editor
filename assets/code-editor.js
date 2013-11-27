@@ -109,16 +109,16 @@
 
 					// Restore scroll position
 					text_area.scrollTop = position;
-				}
+				}*/
 				if(([8, 9, 13, 32, 45, 46].indexOf(key) != -1) || (key >= 48 && key <= 90) || (key >= 163 && key <= 222)){
 					//if(!$(body).hasClass('unsaved-changes')) $(body).addClass('unsaved-changes');
 					/*if(!document_modified) {
 						document_modified = true;
 						breadcrumbs_filename.html(breadcrumbs_filename.html() + ' <small>↑</small>');
-					}
+					}*/
 					setTimeout(updateEditor, 2);
-				}*/
-				if(key >= 33 && key <= 40) {
+				}
+				else if(key >= 33 && key <= 40) {
 					setTimeout(positionEditorCaret, 1);
 				}
 			})
@@ -174,17 +174,6 @@
 			.append(editor.line_numbers)
 			.appendTo($('#contents fieldset label')[1]);
 
-/*		$(text_area)
-			.blur(function(event) {
-				if($(editor.inner).hasClass('focus')) {
-					$(editor.inner).removeClass('focus');
-					if($(editor.selection).hasClass('caret')) {
-						$(editor.selection).css('visibility', 'hidden');
-					}
-					//window.getSelection().removeAllRanges();
-				}
-			})
-*/
 		textToEditor();
 
 		if(typeof(window.MutationObserver) != 'function'){

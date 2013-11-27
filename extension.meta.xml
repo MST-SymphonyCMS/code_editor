@@ -15,6 +15,9 @@
 		</author>
 	</authors>
 	<releases>
+		<release version="0.1.2" date="2013-11-27" min="2.3">
+			- Fixed the slip-up in version 0.1.1 that meant that characters could not be typed.
+		</release>
 		<release version="0.1.1" date="2013-11-27" min="2.3">
 			- Adjustments to CSS and JS to reduce page layout foul-up.
 		</release>
