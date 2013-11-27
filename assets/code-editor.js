@@ -20,12 +20,8 @@
 			$(this).append(span);
 		});
 	};
-
-	var query_start = document.URL.indexOf("?");
-	//var page_url = (query_start > -1) ? document.URL.slice(0, query_start) : document.URL;
 		
 	var body,
-		notifier,
 		contents,
 		actions;
 
@@ -36,21 +32,10 @@
 	var highlighter,
 		style_prefix;
 
-	var $list_files,
-		$div_actions;
+	var	$div_actions;
 
-	var page_url,
-		workspace_url,
-		editor_url;
 	var name_field;
 	var form_action;
-
-	var style_prefixes = {
-		'xsl': 'XSLT_',
-		'css': 'CSS_',
-		'js': 'JS_',
-		'php': 'GEN_'
-	}
 
 	var text_area;
 
@@ -79,10 +64,6 @@
 		contents = $('#contents')[0];
 		actions = $('#contents div.actions');
 
-/*		page_url = $('#contents form').attr('action');
-		workspace_url = $('#contents form').attr('data-workspace-url');
-		editor_url = $('#contents form').attr('data-editor-url');
-*/
 		name_field = $('input[name="fields[name]"]')[0];
 		//new_file = (name_field.value == '');
 
@@ -92,18 +73,29 @@
 		}
 		else{
 			highlighter = Symphony.Extensions.CodeEditor.highlighters['xsl'];
-			style_prefix = 'XSL_';
 		}
 */
+		$('body').mousedown(function(event) {
+			if($(editor.inner).hasClass('focus')) {
+				$(editor.inner).removeClass('focus');
+				if($(editor.selection).hasClass('caret')) {
+					$(editor.selection).css('visibility', 'hidden');
+				}
+				//window.getSelection().removeAllRanges();
+			}
+		});
+
 		text_area = $('textarea.code')[0];
 		$(text_area)
+			.addClass('hidden')
+			.appendTo('#contents fieldset:first')
 			.scrollTop(0)
 			.keydown(function(event) {
 				var key = event.which;
 				last_key_code = key;
 
 				// Allow tab insertion
-				if(key == 9 && in_workspace) {
+/*				if(key == 9 && in_workspace) {
 					var start = text_area.selectionStart,
 						end = text_area.selectionEnd,
 						position = text_area.scrollTop;
@@ -118,15 +110,15 @@
 					// Restore scroll position
 					text_area.scrollTop = position;
 				}
-				if(([8, 9, 13, 32].indexOf(key) != -1) || (key >= 48 && key <= 90) || (key >= 163 && key <= 222)){
+				if(([8, 9, 13, 32, 45, 46].indexOf(key) != -1) || (key >= 48 && key <= 90) || (key >= 163 && key <= 222)){
 					//if(!$(body).hasClass('unsaved-changes')) $(body).addClass('unsaved-changes');
 					/*if(!document_modified) {
 						document_modified = true;
 						breadcrumbs_filename.html(breadcrumbs_filename.html() + ' <small>↑</small>');
-					}*/
+					}
 					setTimeout(updateEditor, 2);
-				}
-				else if(key >= 33 && key <= 40) {
+				}*/
+				if(key >= 33 && key <= 40) {
 					setTimeout(positionEditorCaret, 1);
 				}
 			})
@@ -140,41 +132,36 @@
 			editor[key].className = "editor-" + split_val[1];
 		}
 
-		$(editor.outer)
+		$(editor.inner)
+			.scroll(function() {
+				$(editor.line_numbers).scrollTop(editor.inner.scrollTop);
+			})
 			.mousedown(function(event) {
-				if(!($(editor.outer).hasClass('focus'))) {
-					$(editor.outer).addClass('focus');
+				if(!($(editor.inner).hasClass('focus'))) {
+					$(editor.inner).addClass('focus');
 					$(editor.selection).text(" ").css('visibility', 'visible');
 					text_area.focus();
 					positionEditorCaret();
 				}
 				//event.preventDefault();
 				event.stopPropagation();
-			})
-			.mouseup(function(event) {
-				event.stopPropagation();
 			});
 
 		$(editor.text_panel)
 			.mousedown(function(event) {
-				if(!($(editor.outer).hasClass('focus'))) {
-					$(editor.outer).addClass('focus');
+				if(!($(editor.inner).hasClass('focus'))) {
+					$(editor.inner).addClass('focus');
 					$(editor.selection).text(" ").css('visibility', 'visible');
 				}
 				event.stopPropagation();
 			})
 			.mouseup(function(event) {
 				var s = window.getSelection().getRangeAt(0);
-				text_area.focus();
 				text_area.selectionStart = (createRange(editor.text_panel, 0, s.startContainer, s.startOffset)).toString().length;
 				text_area.selectionEnd = (createRange(editor.text_panel, 0, s.endContainer, s.endOffset)).toString().length;
+				text_area.focus();
 				positionEditorCaret();
-			});
-
-		$(editor.inner)
-			.scroll(function() {
-				$(editor.line_numbers).scrollTop(editor.inner.scrollTop);
-				//console.log(editor.line_numbers.scrollTop, " : ", editor.inner.scrollTop);
+				event.stopPropagation();
 			});
 
 		$(editor.panel_anchor)
@@ -184,30 +171,20 @@
 			.append(editor.panel_anchor);
 		$(editor.outer)
 			.append(editor.inner)
-			.append(editor.line_numbers);
-		$(text_area)
-			.addClass('hidden')
-			.parent().append(editor.outer);
+			.append(editor.line_numbers)
+			.appendTo($('#contents fieldset label')[1]);
 
-		$(body)
-			.mousedown(function(event) {
-				if($(editor.outer).hasClass('focus')) {
-					$(editor.outer).removeClass('focus');
+/*		$(text_area)
+			.blur(function(event) {
+				if($(editor.inner).hasClass('focus')) {
+					$(editor.inner).removeClass('focus');
 					if($(editor.selection).hasClass('caret')) {
 						$(editor.selection).css('visibility', 'hidden');
 					}
+					//window.getSelection().removeAllRanges();
 				}
 			})
-			.mouseup(function(event) {
-				if($(editor.outer).hasClass('focus')) {
-					$(editor.outer).removeClass('focus');
-					if($(editor.selection).hasClass('caret')) {
-						$(editor.selection).css('visibility', 'hidden');
-					}
-					window.getSelection().removeAllRanges();
-				}
-			});
-
+*/
 		textToEditor();
 
 		if(typeof(window.MutationObserver) != 'function'){
@@ -273,7 +250,9 @@
  	function textToEditor() {
 		setHighlighting();
 		if(highlighter) {
-			$(editor.text_panel).empty().append(highlighter(text_area.value));
+			$(editor.text_panel)
+			.empty()
+			.append(highlighter(text_area.value));
 		}
 		else {
 			$(editor.text_panel).text(text_area.value);
@@ -290,8 +269,11 @@
 			.html(l + '<br>')
 			.css('height', editor.inner.clientHeight + 'px');
 
+		//$(editor.outer)
+			//.width(editor.outer.clientWidth);
+			//.css('width', editor.outer.clientWidth + 'px')
 		$(editor.inner)
-			.css('minWidth', editor.outer.clientWidth + 'px')
+			.css('minWidth', editor.inner.clientWidth + 'px')
 			//.css('minHeight', (editor.clientHeight - 4) + 'px');
 		$(editor.text_panel)
 			.css('minWidth', (editor.inner.clientWidth - 42) + 'px')
@@ -314,6 +296,7 @@
 			editor.selection.className = 'selection';
 			$(editor.selection).text(selected_text);
 		}
+		$(editor.selection).css('visibility', 'visible');
 		$(editor.back_panel)
 			.empty()
 			.append(d.createTextNode(t))
